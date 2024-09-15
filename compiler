@@ -1,4 +1,10 @@
 #!/usr/bin/env perl
+#
+# TODO:
+# - get file path from ARGV[0] for executable to be build in
+# - handle command line arguments
+# - return proper errors with non zero exit codes
+#
 use strict;
 use warnings;
 use diagnostics;
@@ -6,7 +12,7 @@ use feature 'say';
 use feature 'switch';
 
 my $file;
-open($file, "<", "./return_2.c") or die "Cannot Open file";
+open($file, "<", $ARGV[0]) or die "Cannot Open file";
 
 my $line_number = 1;
 
