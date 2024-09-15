@@ -11,19 +11,97 @@ open($file, "<", "./return_2.c") or die "Cannot Open file";
 my $line_number = 1;
 
 
+my $token = undef;
 while (<$file>) {
     my $identifier= undef;
     my $constant = undef;
+    my $line = $_;
 
-    ($identifier) = ($_ =~ /([a-zA-Z_]\w*\b)/);
-    ($constant) = ($_ =~ /([0-9]+\b)/);
+    while (substr($line, 0, 1) ne '\n') {
+        ($token) = ($line =~ /(\(|\)|\{|\}|\w*)/);
 
-    if (defined $identifier) {
-        print("identifier: ", $identifier, "\n")
+        if ($token) {
+            print("token: '$token'\n");
+            $line = substr($line, length($token), length($line));
+            # print("line: $line");
+        }  else {
+            my $front_empty = undef;
+            ($front_empty) = ($line =~ /^\s*/);
+            if (length($line) == length($front_empty)) {
+                last;
+            }
+            $line = substr($line, length($front_empty), length($line));
+            next;
+        }
+        $token = undef;
+        # $line = '\n';
+
     }
-    if (defined $constant) {
-        print("constant: ", $constant, "\n")
-    }
+
+
+    # if (substr($line, 0, 1) =~ /\w/) {
+    #     printf("$line\n");
+    # }
+
+    # $not_space_index = index($_, /\w/);
+    # print("not space: $not_space_index");
+    # # if ($_ =~ m/^\S\r\n/) {
+    # #     printf(index)
+    # # }
+    #
+    # while (substr($line, 0, 1) ne "\n") {
+    #     print($line);
+    #     if ( $line =~ /(\s|[^ \t]*)/ ) {
+    #         my $len = length($line);
+    #         $line = substr($line, $+[0], $len);
+    #         # print("$line");
+    #         # print("\n");
+    #     }
+    # }
+    #
+    # my $sub = undef;
+
+    # while (substr($line, 0, 1) ne "\n") {
+    #     # print($line);
+    #     if (defined $sub) {
+    #         print($sub);
+    #         print("\n");
+    #     }
+
+    #     if ( $line =~ /\W/ ) {
+    #         my $len = length($line);
+    #         $line = substr($line, $+[0], $len);
+    #         # my $sub = substr($line, $+[0], $len);
+    #         ($sub) = ($line =~ /(\w*)/)
+    #         # my $newline;
+    #         # ($newline) = ($line =~ /\w*/);
+    #         # $line = $newline;
+    #         # print("$line");
+    #         # print("\n");
+    #     } else {
+    #         $sub = undef;
+    #     }
+    # }
+
+    # if ($line =~ /\W*/) {
+    #     print(substr($line, $-[0], $+[0]));
+    #     print("\n");
+
+    # }
+
+
+    # my @array = split(/ .+/, $line);
+    # print($array[0]);
+
+    # ($identifier) = ($_ =~ /([a-zA-Z_]\w*\b)/g);
+    # ($constant) = ($_ =~ /([0-9]+\b)/);
+
+    # if (defined $identifier) {
+    #     print("identifier: ", $identifier, "\n")
+    # }
+    # if (defined $constant) {
+    #     print("constant: ", $constant, "\n")
+    # }
 
     $line_number++;
 }
