@@ -27,8 +27,8 @@ open($fp, "<", $c_file) or die "Cannot Open file";
 
 my $line_number = 1;
 
-
 my $token = undef;
+
 while (<$fp>) {
     my $line = $_;
 
@@ -50,14 +50,31 @@ while (<$fp>) {
 
         my $identifier= undef;
         my $constant = undef;
-        ($identifier) = ($line =~ /([a-zA-Z_]\w*\b)/g);
-        ($constant) = ($line =~ /([0-9]+\b)/);
+        my $keyword_int = undef;
+        ($identifier) = ($token=~ /([ a-zA-Z_]\w*\b)/);
+        ($constant) = ($token =~ /([0-9]+\b)/);
 
         if (defined $identifier) {
-            print("identifier: ", $identifier, "\n")
-        }
-        if (defined $constant) {
-            print("constant: ", $constant, "\n")
+            print("identifier: ", $identifier, "\n");
+        } elsif (defined $constant) {
+            print("constant: ", $constant, "\n");
+        } elsif ($token =~ /\(/) {
+
+        } elsif ($token =~ /\)/) {
+
+        } elsif ($token =~ /\{/) {
+
+        } elsif ($token =~ /\}/) {
+
+        } elsif ($token =~ /int\b/) {
+
+        } elsif ($token =~ /void\b/) {
+
+        } elsif ($token =~ /;/) {
+
+        } else {
+            print('Syntax Error\n');
+            exit 0;
         }
 
     }
