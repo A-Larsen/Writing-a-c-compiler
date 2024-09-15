@@ -11,14 +11,25 @@ use diagnostics;
 use feature 'say';
 use feature 'switch';
 
-my $file;
-open($file, "<", $ARGV[0]) or die "Cannot Open file";
+my $fp;
+my $c_file = $ARGV[-1];
+my $option_flags = 0;
+my $options = { 'lex' => 1 << 0, 'parse' => 1 << 1, 'codegen' => 1 << 2 };
+
+for my $i (0 .. $#ARGV) {
+    my $arg = $ARGV[$i];
+    if ($arg =~ /^--/) {
+        $option_flags |= $options->{lex};
+    }
+}
+
+open($fp, "<", $c_file) or die "Cannot Open file";
 
 my $line_number = 1;
 
 
 my $token = undef;
-while (<$file>) {
+while (<$fp>) {
     my $line = $_;
 
     while (substr($line, 0, 1) ne '\n') {
