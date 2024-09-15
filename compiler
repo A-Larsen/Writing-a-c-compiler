@@ -1,0 +1,29 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use diagnostics;
+use feature 'say';
+use feature 'switch';
+
+my $file;
+open($file, "<", "./return_2.c") or die "Cannot Open file";
+
+my $line_number = 1;
+
+
+while (<$file>) {
+    my $identifier= undef;
+    my $constant = undef;
+
+    ($identifier) = ($_ =~ /([a-zA-Z_]\w*\b)/);
+    ($constant) = ($_ =~ /([0-9]+\b)/);
+
+    if (defined $identifier) {
+        print("identifier: ", $identifier, "\n")
+    }
+    if (defined $constant) {
+        print("constant: ", $constant, "\n")
+    }
+
+    $line_number++;
+}
