@@ -20,7 +20,7 @@ while (<$file>) {
     while (substr($line, 0, 1) ne '\n') {
         ($token) = ($line =~ /(\(|\)|\{|\}|;|\w*)/);
 
-        if ($token) {
+        if ($token ne '') {
             print("token: '$token'\n");
             $line = substr($line, length($token), length($line));
             # print("line: $line");
@@ -33,7 +33,6 @@ while (<$file>) {
             $line = substr($line, length($front_empty), length($line));
             next;
         }
-        $token = undef;
         # $line = '\n';
 
     }
