@@ -33,7 +33,8 @@ while (<$fp>) {
     my $line = $_;
 
     while (substr($line, 0, 1) ne '\n') {
-        ($token) = ($line =~ /(\(|\)|\{|\}|;|\w*)/);
+        # ($token) = ($line =~ /(\(|\)|\{|\}|;|\w*)/);
+        ($token) = ($line =~ /([\(\)\{\};\*|-]|\w*)/);
 
         if ($token ne '') {
             print("token: '$token'\n");
@@ -73,8 +74,8 @@ while (<$fp>) {
         } elsif ($token =~ /;/) {
 
         } else {
-            print('Syntax Error\n');
-            exit 0;
+            print("Syntax error\n'$token' is not a token\n");
+            exit 1;
         }
 
     }
