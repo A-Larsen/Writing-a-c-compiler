@@ -33,7 +33,7 @@ while (<$fp>) {
     my $line = $_;
 
     while (substr($line, 0, 1) ne '\n') {
-        $line =~ /([\(\)\{\};]|\w*)/;
+        $line =~ /([\(\)\{\};./|]|\w*)/;
         $token = $1;
 
         if ($token ne '') {
