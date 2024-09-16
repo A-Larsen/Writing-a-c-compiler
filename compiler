@@ -33,7 +33,6 @@ while (<$fp>) {
     my $line = $_;
 
     while (substr($line, 0, 1) ne '\n') {
-        my $is_found = 0;
         $line =~ /([\(\)\{\};]|\w*)/;
         $token = $1;
 
