@@ -36,7 +36,7 @@ while (<$fp>) {
     while (substr($line, 0, 1) ne '\n') {
         # I have to add every character to be found as the next token. Not all
         # tokens are exceptable syntax
-        $line =~ /([\(\)\{\};.\|]|\w*)/;
+        $line =~ /([\(\)\{\};.\|]|\w*)/a;
         $token = $1;
 
         if ($token ne '') {
@@ -55,8 +55,8 @@ while (<$fp>) {
         my $identifier= undef;
         my $constant = undef;
         my $keyword_int = undef;
-        ($identifier) = ($token=~ /([ a-zA-Z_]\w*\b)/);
-        ($constant) = ($token =~ /([0-9]+\b)/);
+        ($identifier) = ($token=~ /([ a-zA-Z_]\w*\b)/a);
+        ($constant) = ($token =~ /([0-9]+\b)/a);
 
         if (defined $identifier) {
             print("identifier: ", $identifier, "\n");
@@ -70,11 +70,11 @@ while (<$fp>) {
 
         } elsif ($token =~ /\}/) {
 
-        } elsif ($token =~ /int\b/) {
+        } elsif ($token =~ /int\b/a) {
 
-        } elsif ($token =~ /void\b/) {
+        } elsif ($token =~ /void\b/a) {
 
-        } elsif ($token =~ /;/) {
+        } elsif ($token =~ /;/a) {
 
         } else {
             print("Syntax error\n'$token' is not a token\n");
