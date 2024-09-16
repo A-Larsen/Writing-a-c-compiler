@@ -35,7 +35,7 @@ while (<$fp>) {
     while (substr($line, 0, 1) ne '\n') {
         # I have to add every character to be found as the next token. Not all
         # tokens are exceptable syntax
-        $line =~ /([\(\)\{\};./|]|\w*)/;
+        $line =~ /([\(\)\{\};.\|]|\w*)/;
         $token = $1;
 
         if ($token ne '') {
