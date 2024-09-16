@@ -36,7 +36,14 @@ while (<$fp>) {
     while (substr($line, 0, 1) ne '\n') {
         # I have to add every character to be found as the next token. Not all
         # tokens are exceptable syntax
-        $line =~ /([(){};.|]|\w*)/a;
+        $line =~ /([[\](){};.|]|\w*)/a; #
+
+        # However, if the "]" is the first (or the second if the first character
+        # is a caret) character of a bracketed character class, it does not
+        # denote the end of the class (as you cannot have an empty class) and is
+        # considered part of the set of characters that can be matched without
+        # escaping
+        #
         $token = $1;
 
         if ($token ne '') {
@@ -69,6 +76,8 @@ while (<$fp>) {
         } elsif ($token =~ /\{/) {
 
         } elsif ($token =~ /\}/) {
+        } elsif ($token =~ /\[/) {
+        } elsif ($token =~ /\]/) {
 
         } elsif ($token =~ /int\b/a) {
 
