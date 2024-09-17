@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
         if (std::regex_search(line, reg_leading_white_space)) {
             ltrim(line);
         }
-        std::cout << line_number << std::endl;
+        std::cout << "line number: " << line_number << std::endl;
 
         // find matching token
         std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b");
@@ -56,8 +56,23 @@ int main(int argc, char **argv) {
         std::regex reg_token_constant ("[0-9]+\\b");
         match_token("constant", line, reg_token_constant);
 
-        std::regex reg_token_int ("int\\b");
-        match_token("int", line, reg_token_int);
+        std::regex reg_token_keyword ("int\\b|void\\b|return\\b");
+        match_token("keyword", line, reg_token_keyword);
+
+        std::regex reg_token_open_parenthesis ("\\(");
+        match_token("open parenthises", line, reg_token_keyword);
+
+        std::regex reg_token_close_parenthesis ("\\)");
+        match_token("close parenthises", line, reg_token_keyword);
+
+        std::regex reg_token_open_brace ("\\{");
+        match_token("open brace", line, reg_token_open_brace);
+
+        std::regex reg_token_close_brace ("\\}");
+        match_token("close brace", line, reg_token_close_brace);
+
+        std::regex reg_token_semicolon (";");
+        match_token("semicolon", line, reg_token_semicolon);
 
         ++line_number;
         // remove token from the start of the input
