@@ -14,8 +14,8 @@ int main(int argc, char **argv) {
 
     for (int i = 0; i < argc; ++i) {
         std::string str = argv[i];
-        std::regex reg ("^--.*");
-        if (std::regex_search(str, reg)) {
+        std::regex reg_option_indicator ("^--.*");
+        if (std::regex_search(str, reg_option_indicator)) {
             std::cout << "regex found at " << i << std::endl;
         }
     }
@@ -30,11 +30,23 @@ int main(int argc, char **argv) {
     }
 
     while (std::getline(file, line)) {
-        std::regex reg ("^\\s+");
-        if (std::regex_search(line, reg)) {
+        std::regex reg_leading_white_space ("^\\s+");
+        if (std::regex_search(line, reg_leading_white_space)) {
             ltrim(line);
-            std::cout << line << "\n";
         }
+        // find matching token
+        std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b");
+        std::sregex_iterator current_match (line.begin(), line.end(),
+                                           reg_token_identifier);
+
+        std::sregex_iterator last_match;
+
+        while(current_match != last_match) {
+            std::smatch match = *current_match;
+            std::cout << match.str() << "\n";
+            current_match++;
+        }
+        // remove token from the start of the input
     }
     file.close();
 
