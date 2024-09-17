@@ -4,6 +4,12 @@
 #include <string.h>
 #include <regex>
 
+void ltrim (std::string &s) {
+    s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch){
+        return !std::isspace(ch);
+    }));
+}
+
 int main(int argc, char **argv) {
 
     for (int i = 0; i < argc; ++i) {
@@ -26,6 +32,7 @@ int main(int argc, char **argv) {
     while (std::getline(file, line)) {
         std::regex reg ("^\\s+");
         if (std::regex_search(line, reg)) {
+            ltrim(line);
             std::cout << line << "\n";
         }
     }
