@@ -10,6 +10,20 @@ void ltrim (std::string &s) {
     }));
 }
 
+void match_token(std::string str, std::regex reg) {
+    // find matching token
+    /* std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b"); */
+    std::sregex_iterator current_match (str.begin(), str.end(), reg);
+
+    std::sregex_iterator last_match;
+
+    while(current_match != last_match) {
+        std::smatch match = *current_match;
+        std::cout << match.str() << "\n";
+        current_match++;
+    }
+}
+
 int main(int argc, char **argv) {
 
     for (int i = 0; i < argc; ++i) {
@@ -36,16 +50,18 @@ int main(int argc, char **argv) {
         }
         // find matching token
         std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b");
-        std::sregex_iterator current_match (line.begin(), line.end(),
-                                           reg_token_identifier);
+        match_token(line, reg_token_identifier);
+        /* std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b"); */
+        /* std::sregex_iterator current_match (line.begin(), line.end(), */
+        /*                                    reg_token_identifier); */
 
-        std::sregex_iterator last_match;
+        /* std::sregex_iterator last_match; */
 
-        while(current_match != last_match) {
-            std::smatch match = *current_match;
-            std::cout << match.str() << "\n";
-            current_match++;
-        }
+        /* while(current_match != last_match) { */
+        /*     std::smatch match = *current_match; */
+        /*     std::cout << match.str() << "\n"; */
+        /*     current_match++; */
+        /* } */
         // remove token from the start of the input
     }
     file.close();
