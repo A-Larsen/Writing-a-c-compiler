@@ -2,6 +2,7 @@
 #include <fstream>
 #include <string>
 #include <string.h>
+#include <list>
 #include <map>
 #include <regex>
 
@@ -11,7 +12,7 @@ void ltrim (std::string &s) {
     }));
 }
 
-void match_token(std::map<std::string, std::string> &tokens, std::string type, std::string str,
+void match_token(std::map<std::string, std::list<std::string>> &tokens, std::string type, std::string str,
                  std::regex reg) {
     std::sregex_iterator current_match (str.begin(), str.end(), reg);
     std::sregex_iterator last_match;
@@ -20,7 +21,8 @@ void match_token(std::map<std::string, std::string> &tokens, std::string type, s
         std::smatch match = *current_match;
         /* std::cout << match.str() << "\n"; */
         /* tokens.push_back(match.str()); */
-        tokens[type] = match.str();
+        /* tokens[type] = match.str(); */
+        tokens[type].push_back(match.str());
         current_match++;
     }
 }
@@ -39,7 +41,7 @@ int main(int argc, char **argv) {
     std::ifstream file (file_name);
     std::string line;
     /* std::list<std::string> tokens; */
-    std::map<std::string, std::string> tokens;
+    std::map<std::string, std::list<std::string>> tokens;
 
     if (!file.is_open()) {
         std::cout << "could not open file" << std::endl;
@@ -62,14 +64,16 @@ int main(int argc, char **argv) {
         std::regex reg_token_int ("int\\b");
         match_token(tokens, "int", line, reg_token_int);
 
-        std::map<std::string, std::string>::iterator it = tokens.begin();
-
-        while (it != tokens.end()) {
-            std::cout << "Key: " << it->first << ", Value: " << it->second << std::endl;
-            ++it;
-        }
 
         // remove token from the start of the input
+    }
+    std::map<std::string, std::list<std::string>>::iterator it = tokens.begin();
+
+    while (it != tokens.end()) {
+        for (std::string s : it->second) {
+            std::cout << it->first << ": " << s << "\n";
+        }
+        ++it;
     }
 
     file.close();
