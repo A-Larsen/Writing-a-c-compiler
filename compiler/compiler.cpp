@@ -11,10 +11,7 @@ void ltrim (std::string &s) {
 }
 
 void match_token(std::string str, std::regex reg) {
-    // find matching token
-    /* std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b"); */
     std::sregex_iterator current_match (str.begin(), str.end(), reg);
-
     std::sregex_iterator last_match;
 
     while(current_match != last_match) {
@@ -25,7 +22,6 @@ void match_token(std::string str, std::regex reg) {
 }
 
 int main(int argc, char **argv) {
-
     for (int i = 0; i < argc; ++i) {
         std::string str = argv[i];
         std::regex reg_option_indicator ("^--.*");
@@ -33,6 +29,7 @@ int main(int argc, char **argv) {
             std::cout << "regex found at " << i << std::endl;
         }
     }
+
     std::string file_name = argv[argc - 1];
     std::cout << "filename: \"" << file_name << "\""<< std::endl;
     std::ifstream file (file_name);
@@ -48,6 +45,7 @@ int main(int argc, char **argv) {
         if (std::regex_search(line, reg_leading_white_space)) {
             ltrim(line);
         }
+
         // find matching token
         std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b");
         match_token(line, reg_token_identifier);
@@ -55,8 +53,12 @@ int main(int argc, char **argv) {
         std::regex reg_token_constant ("[0-9]+\\b");
         match_token(line, reg_token_constant);
 
+        std::regex reg_token_int ("int\\b");
+        match_token(line, reg_token_int);
+
         // remove token from the start of the input
     }
+
     file.close();
 
     return 0;
