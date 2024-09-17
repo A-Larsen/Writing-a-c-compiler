@@ -1,9 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <string.h>
-#include <list>
-#include <map>
+#include <stdint.h>
 #include <regex>
 
 void ltrim (std::string &s) {
@@ -12,17 +10,14 @@ void ltrim (std::string &s) {
     }));
 }
 
-void match_token(std::map<std::string, std::list<std::string>> &tokens, std::string type, std::string str,
+void match_token(std::string type, std::string str,
                  std::regex reg) {
     std::sregex_iterator current_match (str.begin(), str.end(), reg);
     std::sregex_iterator last_match;
 
     while(current_match != last_match) {
         std::smatch match = *current_match;
-        /* std::cout << match.str() << "\n"; */
-        /* tokens.push_back(match.str()); */
-        /* tokens[type] = match.str(); */
-        tokens[type].push_back(match.str());
+        std::cout << type << ": " << match.str() << "\n";
         current_match++;
     }
 }
@@ -40,8 +35,7 @@ int main(int argc, char **argv) {
     std::cout << "filename: \"" << file_name << "\""<< std::endl;
     std::ifstream file (file_name);
     std::string line;
-    /* std::list<std::string> tokens; */
-    std::map<std::string, std::list<std::string>> tokens;
+    uint64_t line_number = 0;
 
     if (!file.is_open()) {
         std::cout << "could not open file" << std::endl;
@@ -53,27 +47,20 @@ int main(int argc, char **argv) {
         if (std::regex_search(line, reg_leading_white_space)) {
             ltrim(line);
         }
+        std::cout << line_number << std::endl;
 
         // find matching token
         std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b");
-        match_token(tokens, "identifier", line, reg_token_identifier);
+        match_token("identifier", line, reg_token_identifier);
 
         std::regex reg_token_constant ("[0-9]+\\b");
-        match_token(tokens, "constant", line, reg_token_constant);
+        match_token("constant", line, reg_token_constant);
 
         std::regex reg_token_int ("int\\b");
-        match_token(tokens, "int", line, reg_token_int);
+        match_token("int", line, reg_token_int);
 
-
+        ++line_number;
         // remove token from the start of the input
-    }
-    std::map<std::string, std::list<std::string>>::iterator it = tokens.begin();
-
-    while (it != tokens.end()) {
-        for (std::string s : it->second) {
-            std::cout << it->first << ": " << s << "\n";
-        }
-        ++it;
     }
 
     file.close();
