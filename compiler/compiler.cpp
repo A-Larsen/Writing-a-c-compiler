@@ -51,17 +51,10 @@ int main(int argc, char **argv) {
         // find matching token
         std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b");
         match_token(line, reg_token_identifier);
-        /* std::regex reg_token_identifier ("[a-zA-Z_]\\w*\\b"); */
-        /* std::sregex_iterator current_match (line.begin(), line.end(), */
-        /*                                    reg_token_identifier); */
 
-        /* std::sregex_iterator last_match; */
+        std::regex reg_token_constant ("[0-9]+\\b");
+        match_token(line, reg_token_constant);
 
-        /* while(current_match != last_match) { */
-        /*     std::smatch match = *current_match; */
-        /*     std::cout << match.str() << "\n"; */
-        /*     current_match++; */
-        /* } */
         // remove token from the start of the input
     }
     file.close();
