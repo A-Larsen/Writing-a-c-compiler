@@ -72,8 +72,7 @@ int main(int argc, char **argv) {
 
             if (rc < 0) {
                 switch (rc) {
-                    case PCRE2_ERROR_NOMATCH: fprintf(stderr, "No match\n");
-                                              break;
+                    case PCRE2_ERROR_NOMATCH: continue; break;
                     default: fprintf(stderr, "Matching error %d\n", rc);
                              break;
                 }
