@@ -21,12 +21,6 @@
 #define TOKEN_MULTILINE_COMMENT_END 9
 #define TOKEN_COUNT 10
 
-#define TOKEN2_OPEN_NONE 0
-#define TOKEN2_OPEN_COMMENT 1
-#define TOKEN2_OPEN_BRACKET 2
-#define TOKEN2_OPEN_PARANTHESIS 3
-#define TOKEN2_OPEN_SEMICOLON 4
-
 const char *token_regexs[TOKEN_COUNT] = {
     [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
     [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
@@ -131,8 +125,7 @@ REGEX_FOUND:
         //     This second token check it to process syntax within an opening
         //     and closing delimiter
         switch(second_token_check_type) {
-            case TOKEN2_OPEN_NONE: break;
-            case TOKEN2_OPEN_COMMENT: {
+            case TOKEN_MULTILINE_COMMENT_START: {
                 while(!regex_match(NULL, line,
                                    token_regexs[TOKEN_MULTILINE_COMMENT_END],
                                    false)) {
@@ -158,12 +151,7 @@ REGEX_FOUND:
             if (regex_match(&match, line, regexs[i], true)) {
                 printf("%s\n", match);
                 free(match);
-                second_token_check_type = 0;
-                switch(i) {
-                    case TOKEN_MULTILINE_COMMENT_START:
-                        second_token_check_type = TOKEN2_OPEN_COMMENT;
-                }
-
+                second_token_check_type = i;
                 goto REGEX_FOUND;
             }
         }
