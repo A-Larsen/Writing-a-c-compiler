@@ -4,7 +4,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include <ctype.h>
 
 #define option_lex 1 << 0;
 #define option_parse 1 << 1;
@@ -19,7 +18,24 @@
 #define TOKEN_ClOSE_BRACE 6
 #define TOKEN_SEMICOLON 7
 #define TOKEN_MULTILINE_COMMENT_START 8
-#define TOKEN_COUNT 9
+#define TOKEN_MULTILINE_COMMENT_END 9
+#define TOKEN_COUNT 10
+
+const char *token_regexs[TOKEN_COUNT] = {
+    [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
+    [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
+    [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
+    // opening tokens should be checked fist
+    [TOKEN_OPEN_PARANTHESIS] = "^\\(",
+    [TOKEN_OPEN_BRACE] = "^{",
+    [TOKEN_SEMICOLON] = "^;",
+    [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
+    // The closing tokens should be last so they are checked last, and most
+    // likely not checked at all in the initial regex check
+    [TOKEN_CLOSE_PARANTHESIS] ="^\\)",
+    [TOKEN_ClOSE_BRACE] = "^}",
+    [TOKEN_MULTILINE_COMMENT_END] = "^\\*/",
+};
 
 static int options = 0;
 
@@ -104,7 +120,9 @@ void get_tokens(char *line, uint32_t line_number, const char **regexs,
     while (true) {
 REGEX_FOUND:
         if (in_comment) {
-            while(!regex_match(NULL, line, "^\\*/", false)) {
+            while(!regex_match(NULL, line,
+                               token_regexs[TOKEN_MULTILINE_COMMENT_END],
+                               false)) {
                 if (line[0] == '\n') return;
                 int len = strlen(line) - 1;
                 memcpy(line, line + 1, len);
@@ -116,6 +134,7 @@ REGEX_FOUND:
         if (regex_match(NULL, line, "^\\n*$", false) || line[0] == EOF) break;
         regex_match(NULL, line, "^\\s+", false);
 
+        // initial regex check
         for (uint8_t i = 0; i < regexs_length; ++i) {
             char *match = NULL;
             if (regex_match(&match, line, regexs[i], true)) {
@@ -147,17 +166,6 @@ int main(int argc, char **argv) {
     char line[256];
     memset(line, 0, 256);
     int line_pos = 0;
-    const char *token_regexs[TOKEN_COUNT] = {
-        [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
-        [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
-        [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
-        [TOKEN_OPEN_PARANTHESIS] = "^\\(",
-        [TOKEN_CLOSE_PARANTHESIS] ="^\\)",
-        [TOKEN_OPEN_BRACE] = "^{",
-        [TOKEN_ClOSE_BRACE] = "^}",
-        [TOKEN_SEMICOLON] = "^;",
-        [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
-    };
 
     while (true) {
         int ch = getc(fp);
