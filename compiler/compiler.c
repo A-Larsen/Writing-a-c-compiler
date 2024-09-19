@@ -26,22 +26,6 @@
 // finishs then an error occurs
 static uint8_t brace_indicator = 0;
 
-const char *token_regexs[TOKEN_COUNT] = {
-    [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
-    [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
-    [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
-    // opening tokens should be checked fist
-    [TOKEN_OPEN_PARANTHESIS] = "^\\(",
-    [TOKEN_OPEN_BRACE] = "^{",
-    [TOKEN_SEMICOLON] = "^;",
-    [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
-    // The closing tokens should be last so they are checked last, and most
-    // likely not checked at all in the 1st token check
-    [TOKEN_CLOSE_PARANTHESIS] ="^\\)",
-    [TOKEN_ClOSE_BRACE] = "^}",
-    [TOKEN_MULTILINE_COMMENT_END] = "^\\*/",
-};
-
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
@@ -118,7 +102,7 @@ int regex_match(char **found, char *str, const char *regex, bool capture) {
     return 1;
 }
 
-bool handle_comment(char *line) {
+bool handle_comment(char *line, const char **token_regexs) {
     while(!regex_match(NULL, line,
                        token_regexs[TOKEN_MULTILINE_COMMENT_END],
                        false)) {
@@ -132,8 +116,23 @@ bool handle_comment(char *line) {
 
 
 
-void get_tokens(char *line, uint32_t line_number, const char **regexs,
-                uint8_t regexs_length) {
+void lexer(char *line, uint32_t line_number) {
+    const char *token_regexs[TOKEN_COUNT] = {
+        [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
+        [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
+        [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
+        // opening tokens should be checked fist
+        [TOKEN_OPEN_PARANTHESIS] = "^\\(",
+        [TOKEN_OPEN_BRACE] = "^{",
+        [TOKEN_SEMICOLON] = "^;",
+        [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
+        // The closing tokens should be last so they are checked last, and most
+        // likely not checked at all in the 1st token check
+        [TOKEN_CLOSE_PARANTHESIS] ="^\\)",
+        [TOKEN_ClOSE_BRACE] = "^}",
+        [TOKEN_MULTILINE_COMMENT_END] = "^\\*/",
+    };
+
     static uint8_t second_token_check_type = 0;
 
 
@@ -145,7 +144,7 @@ REGEX_FOUND:
         //     and closing delimiter
         switch(second_token_check_type) {
             case TOKEN_MULTILINE_COMMENT_START: {
-                if (handle_comment(line)) return;
+                if (handle_comment(line, token_regexs)) return;
                 break;
             }
             case TOKEN_OPEN_BRACE: brace_indicator++; break;
@@ -161,9 +160,9 @@ REGEX_FOUND:
         // ===============
         //     This fist token check is to check high level tokens and see if a
         //     second token check is necisarry
-        for (uint8_t i = 0; i < regexs_length; ++i) {
+        for (uint8_t i = 0; i < TOKEN_COUNT; ++i) {
             char *match = NULL;
-            if (regex_match(&match, line, regexs[i], true)) {
+            if (regex_match(&match, line, token_regexs[i], true)) {
                 printf("%s\n", match);
                 free(match);
                 second_token_check_type = i;
@@ -195,7 +194,7 @@ int main(int argc, char **argv) {
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n' || ch == EOF) {
-            get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
+            lexer(line, line_number);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
