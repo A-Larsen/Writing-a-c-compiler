@@ -117,26 +117,18 @@ int main(int argc, char **argv)
                 memcpy(line, line + 1, len);
                 line[len] = '\0';
                 }
+            while(!regex_match(line, "^\\s*$"))
+                {
+                regex_match(line, "(int\\b|void\\b|return\\b)");
+                regex_match(line, "[a-zA-Z_]\\w*\\b");
+                regex_match(line, "[0-9]+\\b");
+                regex_match(line, "\\)");
+                regex_match(line, "\\(");
+                regex_match(line, "\\{");
+                regex_match(line, "\\}");
+                regex_match(line, "\\;");
+                }
 
-            regex_match(line, "(int\\b|void\\b|return\\b)");
-            printf("%s", line);
-                /* regex_match(line, "[a-zA-Z_]\\w*\\b"); */
-                /* regex_match(line, "[0-9]+\\b"); */
-                /* while(1) { */
-                /*     if ( */
-                /*         !regex_match(line, "(int\\b|void\\b|return\\b)") || */
-                /*         !regex_match(line, "[a-zA-Z_]\\w*\\b") || */
-                /*         !regex_match(line, "[0-9]+\\b") || */
-                /*         !regex_match(line, "\\)") || */
-                /*         !regex_match(line, "\\(") || */
-                /*         !regex_match(line, "\\{") || */
-                /*         !regex_match(line, "\\}") || */
-                /*         !regex_match(line, "\\;") */
-                /*         ) */
-                /*         continue; */
-
-                /*     break; */
-                /* } */
             memset(line, 0, 255);
             line_pos = 0;
             }
