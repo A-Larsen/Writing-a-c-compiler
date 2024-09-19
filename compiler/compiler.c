@@ -119,9 +119,7 @@ REGEX_FOUND:
         for (uint8_t i = 0; i < regexs_length; ++i) {
             if (regex_match(line, regexs[i], true)) {
                 switch(i) {
-                    case TOKEN_MULTILINE_COMMENT_START:  {
-                        in_comment = true;
-                    }
+                    case TOKEN_MULTILINE_COMMENT_START: in_comment = true;
                 }
 
                 goto REGEX_FOUND;
