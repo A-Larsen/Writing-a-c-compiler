@@ -24,7 +24,7 @@
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
-int regex_match(char *str, const char *regex, bool process_match) {
+int regex_match(char *str, const char *regex) {
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex;
     PCRE2_SPTR subject = (PCRE2_SPTR)str;
     int error_number;
@@ -78,8 +78,6 @@ int regex_match(char *str, const char *regex, bool process_match) {
         fprintf(stderr, "ovector was not big enough for all the"
                         "captured substrings\n");
 
-    if (!process_match) return 1;
-
     PCRE2_SPTR substring_start = subject + ovector[0];
     PCRE2_SIZE substring_length = ovector[1] - ovector[0];
     printf("'%.*s'\n", (int)substring_length,
@@ -102,7 +100,7 @@ void get_tokens(char *line, uint32_t line_number, const char **regexs,
     while (true) {
 REGEX_FOUND:
         if (in_comment) {
-            while(!regex_match(line, "^\\*/", true)) {
+            while(!regex_match(line, "^\\*/")) {
                 if (line[0] == '\n') return;
                 int len = strlen(line) - 1;
                 memcpy(line, line + 1, len);
@@ -111,11 +109,11 @@ REGEX_FOUND:
             in_comment = false;
         }
 
-        if (regex_match(line, "^\\n*$", false)) break;
-        regex_match(line, "^\\s+", true);
+        if (regex_match(line, "^\\n*$")) break;
+        regex_match(line, "^\\s+");
 
         for (uint8_t i = 0; i < regexs_length; ++i) {
-            if (regex_match(line, regexs[i], true)) {
+            if (regex_match(line, regexs[i])) {
                 switch(i) {
                     case TOKEN_MULTILINE_COMMENT_START: in_comment = true;
                 }
