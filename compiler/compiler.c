@@ -114,7 +114,7 @@ bool handle_comment(char *line, const char **token_regexs) {
     return false;
 }
 
-void lexer(char *line, uint32_t line_number) {
+void parser(char *line, uint32_t line_number) {
     const char *token_regexs[TOKEN_COUNT] = {
         [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
         [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
@@ -174,14 +174,7 @@ REGEX_FOUND:
     }
 }
 
-int main(int argc, char **argv) {
-    for (int i = 0; i < argc; ++i) {
-        if (strcmp(argv[i], "--lex") == 0)
-            options |= option_lex;
-    }
-
-    char *file_name = argv[argc-1];
-    FILE *fp = fopen(file_name, "r");
+void lexer(FILE *fp) {
     uint32_t line_number = 1;
     char line[256];
     memset(line, 0, 256);
@@ -192,17 +185,29 @@ int main(int argc, char **argv) {
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n' || ch == EOF) {
-            lexer(line, line_number);
+            parser(line, line_number);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
         }
         if (ch == EOF)  break;
     }
+
     if (brace_indicator != 0) {
         fprintf(stderr, "ERROR!\n\tNo Closing brace!");
-        return 1;
+        exit(1);
     }
+}
+
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; ++i) {
+        if (strcmp(argv[i], "--lex") == 0)
+            options |= option_lex;
+    }
+
+    char *file_name = argv[argc-1];
+    FILE *fp = fopen(file_name, "r");
+    lexer(fp);
 
     fclose(fp);
     return 0;
