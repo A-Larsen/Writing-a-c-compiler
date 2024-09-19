@@ -9,6 +9,15 @@
 #define option_parse 1 << 1;
 #define option_codegen 1 << 2;
 
+#define TOKEN_KEYWORD 0
+#define TOKEN_IDENTIFIER 1
+#define TOKEN_INTEGER_CONSTANT 2
+#define TOKEN_OPEN_PARANTHESIS 3
+#define TOKEN_CLOSE_PARANTHESIS 4
+#define TOKEN_OPEN_BRACE 5
+#define TOKEN_ClOSE_BRACE 6
+#define TOKEN_SEMICOLON 7
+
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
@@ -118,14 +127,14 @@ int main(int argc, char **argv) {
     memset(line, 0, 256);
     int line_pos = 0;
     char *token_regexs[8] = {
-        "^(int\\b|void\\b|return\\b)",
-        "^[a-zA-Z_]\\w*\\b",
-        "^[0-9]+\\b",
-        "^\\)",
-        "^\\(",
-        "^{",
-        "^}",
-        "^;"
+        [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
+        [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
+        [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
+        [TOKEN_OPEN_PARANTHESIS] = "^\\(",
+        [TOKEN_CLOSE_PARANTHESIS] ="^\\)",
+        [TOKEN_OPEN_BRACE] = "^{",
+        [TOKEN_ClOSE_BRACE] = "^}",
+        [TOKEN_SEMICOLON] = "^;"
     };
 
     while ((ch = fgetc(fp)) != EOF) {
