@@ -126,14 +126,14 @@ bool handle_comment(char *line) {
 }
 
 
+// the brace_indicator will be incremented for every open brace and
+// decremented for every closing brace, if this is not zero when the lexer
+// finishs then an error occurs
+static uint8_t brace_indicator = 0;
 void get_tokens(char *line, uint32_t line_number, const char **regexs,
                 uint8_t regexs_length) {
     static uint8_t second_token_check_type = 0;
 
-    // the brace_indicator will be incremented for every open brace and
-    // decremented for every closing brace, if this is not zero when the lexer
-    // finishs then an error occurs
-    static uint8_t brace_indicator = 0;
 
     while (true) {
 REGEX_FOUND:
@@ -146,7 +146,12 @@ REGEX_FOUND:
                 if (handle_comment(line)) return;
                 break;
             }
+            case TOKEN_OPEN_BRACE: {
+                brace_indicator++;
+                break;
+            }
             case TOKEN_ClOSE_BRACE: {
+                brace_indicator--;
                 break;
             }
         }
@@ -200,6 +205,10 @@ int main(int argc, char **argv) {
             line_number++;
         }
         if (ch == EOF)  break;
+    }
+    if (brace_indicator != 0) {
+        fprintf(stderr, "ERROR!\n\tNo Closing brace!");
+        return 1;
     }
 
     fclose(fp);
