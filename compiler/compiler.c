@@ -88,6 +88,31 @@ int regex_match(char *str, char *regex, bool process_match)
 
     }
 
+void get_tokens(char *line, uint32_t line_number, char **regexs,
+                uint8_t regexs_length)
+    {
+    while (true)
+        {
+REGEX_FOUND:
+        if (regex_match(line, "^\\s*$", false)) break;
+        while (line[0] == ' ')
+            {
+            int len = strlen(line) - 1;
+            memcpy(line, line + 1, len);
+            line[len] = '\0';
+            }
+            for (uint8_t i = 0; i < regexs_length; ++i) {
+                if (regex_match(line, regexs[i], true))
+                    {
+                    goto REGEX_FOUND;
+                    }
+
+            }
+            fprintf(stderr, "Error on line %d\n", line_number);
+            exit(1);
+        }
+    }
+
 int main(int argc, char **argv)
     {
     for (int i = 0; i < argc; ++i)
@@ -103,6 +128,16 @@ int main(int argc, char **argv)
     char line[256];
     memset(line, 0, 256);
     int line_pos = 0;
+    char *token_regexs[8] = {
+        "^(int\\b|void\\b|return\\b)",
+        "^[a-zA-Z_]\\w*\\b",
+        "^[0-9]+\\b",
+        "^\\)",
+        "^\\(",
+        "^{",
+        "^}",
+        "^;"
+    };
 
     while ((ch = fgetc(fp)) != EOF)
         {
@@ -110,29 +145,7 @@ int main(int argc, char **argv)
         line_pos++;
         if (ch == '\n')
             {
-            while (!regex_match(line, "^\\s*$", false))
-                {
-                while (line[0] == ' ')
-                    {
-                    int len = strlen(line) - 1;
-                    memcpy(line, line + 1, len);
-                    line[len] = '\0';
-                    }
-                if (
-                    !(regex_match(line, "^(int\\b|void\\b|return\\b)", true) ||
-                    regex_match(line, "^[a-zA-Z_]\\w*\\b", true) ||
-                    regex_match(line, "^[0-9]+\\b", true) ||
-                    regex_match(line, "^\\)", true) ||
-                    regex_match(line, "^\\(", true) ||
-                    regex_match(line, "^{", true) ||
-                    regex_match(line, "^}", true) ||
-                    regex_match(line, "^;", true))
-                    ){
-                    fprintf(stderr, "Error on line %d\n", line_number);
-                    exit(1);
-                    }
-                }
-
+            get_tokens(line, line_number, token_regexs, 8);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
