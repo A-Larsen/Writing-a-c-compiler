@@ -97,7 +97,9 @@ REGEX_FOUND:
             if (regex_match(line, regexs[i], true))
                 goto REGEX_FOUND;
         }
-        fprintf(stderr, "Error on line %d\n", line_number);
+        fprintf(stderr, "Error on line %d\n"
+                        ">> %s",
+                line_number, line);
         exit(1);
     }
 }
