@@ -1,2 +1,2 @@
 build: compiler.c
-	gcc -Wall -Wextra lexer.c compiler.c -lpcre2-8 -g -o compiler
+	gcc -Wall -Wextra regex.c lexer.c compiler.c -lpcre2-8 -g -o compiler

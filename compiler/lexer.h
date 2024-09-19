@@ -1,11 +1,10 @@
 #ifndef _LEXER_H_
 #define _LEXER_H_
-#define PCRE2_CODE_UNIT_WIDTH 8
 #include <stdio.h>
-#include <pcre2.h>
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "regex.h"
 
 #define option_lex 1 << 0;
 #define option_parse 1 << 1;
