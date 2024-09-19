@@ -109,7 +109,7 @@ REGEX_FOUND:
             in_comment = false;
         }
 
-        if (regex_match(line, "^\\n*$")) break;
+        if (regex_match(line, "^\\n*$") || line[0] == EOF) break;
         regex_match(line, "^\\s+");
 
         for (uint8_t i = 0; i < regexs_length; ++i) {
@@ -136,7 +136,7 @@ int main(int argc, char **argv) {
 
     char *file_name = argv[argc-1];
     FILE *fp = fopen(file_name, "r");
-    int ch = 0;
+    /* int ch = 0; */
     uint32_t line_number = 1;
     char line[256];
     memset(line, 0, 256);
@@ -154,20 +154,22 @@ int main(int argc, char **argv) {
     };
 
     bool found = false;
-    while ((ch = fgetc(fp)) != EOF) {
+    while (true) {
+        int ch = getc(fp);
         line[line_pos] = ch;
         line_pos++;
-        if (ch == '\n') {
+        if (ch == '\n' || ch == EOF) {
             found = true;
             get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
         }
+        if (ch == EOF)  break;
     }
-    if (!found && strlen(line) > 0) {
-            get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
-    }
+    /* if (!found && strlen(line) > 0) { */
+    /*         get_tokens(line, line_number, token_regexs, TOKEN_COUNT); */
+    /* } */
 
     printf("options: %d\n", options);
     printf("file name: %s\n", file_name);
