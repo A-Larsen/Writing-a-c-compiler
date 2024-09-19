@@ -107,7 +107,7 @@ void get_tokens(char *line, uint32_t line_number, const char **regexs,
         in_comment = false;
         return;
     }  
-    while (!in_comment) {
+    while (true) {
 REGEX_FOUND:
         if (regex_match(line, "^\\s*$", false)) break;
         while (line[0] == ' ') {
