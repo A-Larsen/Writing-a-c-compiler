@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #define option_lex 1 << 0;
 #define option_parse 1 << 1;
@@ -110,12 +111,9 @@ REGEX_FOUND:
             in_comment = false;
         }
 
-        if (regex_match(line, "^\\s*$", false)) break;
-        while (line[0] == ' ') {
-            int len = strlen(line) - 1;
-            memcpy(line, line + 1, len);
-            line[len] = '\0';
-        }
+        if (regex_match(line, "^\\n*$", false)) break;
+        regex_match(line, "^\\s+", true);
+
         for (uint8_t i = 0; i < regexs_length; ++i) {
             if (regex_match(line, regexs[i], true)) {
                 switch(i) {
@@ -157,16 +155,22 @@ int main(int argc, char **argv) {
         [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
     };
 
+    bool found = false;
     while ((ch = fgetc(fp)) != EOF) {
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n') {
+            found = true;
             get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
         }
     }
+    if (!found && strlen(line) > 0) {
+            get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
+    }
+
     printf("options: %d\n", options);
     printf("file name: %s\n", file_name);
     fclose(fp);
