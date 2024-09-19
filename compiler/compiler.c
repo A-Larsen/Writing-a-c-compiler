@@ -113,6 +113,18 @@ int regex_match(char **found, char *str, const char *regex, bool capture) {
     return 1;
 }
 
+bool handle_comment(char *line) {
+    while(!regex_match(NULL, line,
+                       token_regexs[TOKEN_MULTILINE_COMMENT_END],
+                       false)) {
+        if (line[0] == '\n') return true;
+        int len = strlen(line) - 1;
+        memcpy(line, line + 1, len);
+        line[len] = '\0';
+    }
+    return false;
+}
+
 
 void get_tokens(char *line, uint32_t line_number, const char **regexs,
                 uint8_t regexs_length) {
@@ -126,18 +138,12 @@ REGEX_FOUND:
         //     and closing delimiter
         switch(second_token_check_type) {
             case TOKEN_MULTILINE_COMMENT_START: {
-                while(!regex_match(NULL, line,
-                                   token_regexs[TOKEN_MULTILINE_COMMENT_END],
-                                   false)) {
-                    if (line[0] == '\n') return;
-                    int len = strlen(line) - 1;
-                    memcpy(line, line + 1, len);
-                    line[len] = '\0';
-                }
-                second_token_check_type = 0;
+                if (handle_comment(line)) return;
                 break;
             }
         }
+
+        second_token_check_type = 0;
 
         if (regex_match(NULL, line, "^\\n*$", false) || line[0] == EOF) break;
         regex_match(NULL, line, "^\\s+", false);
