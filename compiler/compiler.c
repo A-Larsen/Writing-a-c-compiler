@@ -114,8 +114,6 @@ bool handle_comment(char *line, const char **token_regexs) {
     return false;
 }
 
-
-
 void lexer(char *line, uint32_t line_number) {
     const char *token_regexs[TOKEN_COUNT] = {
         [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
