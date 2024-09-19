@@ -17,6 +17,7 @@
 #define TOKEN_OPEN_BRACE 5
 #define TOKEN_ClOSE_BRACE 6
 #define TOKEN_SEMICOLON 7
+#define TOKEN_COUNT 8
 
 static int options = 0;
 
@@ -126,7 +127,7 @@ int main(int argc, char **argv) {
     char line[256];
     memset(line, 0, 256);
     int line_pos = 0;
-    char *token_regexs[8] = {
+    char *token_regexs[TOKEN_COUNT] = {
         [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
         [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
         [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
@@ -141,7 +142,7 @@ int main(int argc, char **argv) {
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n') {
-            get_tokens(line, line_number, token_regexs, 8);
+            get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
