@@ -153,13 +153,11 @@ int main(int argc, char **argv) {
         [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
     };
 
-    bool found = false;
     while (true) {
         int ch = getc(fp);
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n' || ch == EOF) {
-            found = true;
             get_tokens(line, line_number, token_regexs, TOKEN_COUNT);
             memset(line, 0, 255);
             line_pos = 0;
@@ -167,9 +165,6 @@ int main(int argc, char **argv) {
         }
         if (ch == EOF)  break;
     }
-    /* if (!found && strlen(line) > 0) { */
-    /*         get_tokens(line, line_number, token_regexs, TOKEN_COUNT); */
-    /* } */
 
     printf("options: %d\n", options);
     printf("file name: %s\n", file_name);
