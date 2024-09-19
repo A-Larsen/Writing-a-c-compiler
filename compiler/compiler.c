@@ -22,7 +22,7 @@
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
-int regex_match(char *str, char *regex, bool process_match) {
+int regex_match(char *str, const char *regex, bool process_match) {
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex;
     PCRE2_SPTR subject = (PCRE2_SPTR)str;
     int error_number;
@@ -93,7 +93,7 @@ int regex_match(char *str, char *regex, bool process_match) {
     return 1;
 }
 
-void get_tokens(char *line, uint32_t line_number, char **regexs,
+void get_tokens(char *line, uint32_t line_number, const char **regexs,
                 uint8_t regexs_length) {
     while (true) {
 REGEX_FOUND:
@@ -127,7 +127,7 @@ int main(int argc, char **argv) {
     char line[256];
     memset(line, 0, 256);
     int line_pos = 0;
-    char *token_regexs[TOKEN_COUNT] = {
+    const char *token_regexs[TOKEN_COUNT] = {
         [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
         [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
         [TOKEN_INTEGER_CONSTANT] = "^[0-9]+\\b",
