@@ -82,7 +82,7 @@ int regex_match(char *str, char *regex)
     /* memset(newstr, 0, 256); */
     int len = strlen(str) - substring_length;
     memcpy(str, str + substring_length, len); 
-    str[len] = 0;
+    str[len] = '\0';
     
     return 1;
 
@@ -113,9 +113,9 @@ int main(int argc, char **argv)
             {
             while(line[0] == ' ')
                 {
-                int len = strlen(line);
-                memcpy(line, line + 1, len - 1);
-                line[len - 1] = 0;
+                int len = strlen(line) - 1;
+                memcpy(line, line + 1, len);
+                line[len] = '\0';
                 }
 
             regex_match(line, "(int\\b|void\\b|return\\b)");
