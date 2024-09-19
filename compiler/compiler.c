@@ -21,6 +21,11 @@
 #define TOKEN_MULTILINE_COMMENT_END 9
 #define TOKEN_COUNT 10
 
+// the brace_indicator will be incremented for every open brace and
+// decremented for every closing brace, if this is not zero when the lexer
+// finishs then an error occurs
+static uint8_t brace_indicator = 0;
+
 const char *token_regexs[TOKEN_COUNT] = {
     [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
     [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
@@ -126,10 +131,7 @@ bool handle_comment(char *line) {
 }
 
 
-// the brace_indicator will be incremented for every open brace and
-// decremented for every closing brace, if this is not zero when the lexer
-// finishs then an error occurs
-static uint8_t brace_indicator = 0;
+
 void get_tokens(char *line, uint32_t line_number, const char **regexs,
                 uint8_t regexs_length) {
     static uint8_t second_token_check_type = 0;
@@ -146,14 +148,8 @@ REGEX_FOUND:
                 if (handle_comment(line)) return;
                 break;
             }
-            case TOKEN_OPEN_BRACE: {
-                brace_indicator++;
-                break;
-            }
-            case TOKEN_ClOSE_BRACE: {
-                brace_indicator--;
-                break;
-            }
+            case TOKEN_OPEN_BRACE: brace_indicator++; break;
+            case TOKEN_ClOSE_BRACE: brace_indicator--; break;
         }
 
         second_token_check_type = 0;
