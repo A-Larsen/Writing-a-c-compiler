@@ -30,6 +30,8 @@ static bool handle_comment(char *line, const char **token_regexs) {
 }
 
 static void parser(Lexer *lexer, char *line, uint32_t line_number) {
+    static uint8_t second_token_check_type = 0;
+
     const char *token_regexs[TOKEN_COUNT] = {
         [TOKEN_KEYWORD] = "^(int\\b|void\\b|return\\b)",
         [TOKEN_IDENTIFIER] = "^[a-zA-Z_]\\w*\\b",
@@ -45,9 +47,6 @@ static void parser(Lexer *lexer, char *line, uint32_t line_number) {
         [TOKEN_ClOSE_BRACE] = "^}",
         [TOKEN_MULTILINE_COMMENT_END] = "^\\*/",
     };
-
-    static uint8_t second_token_check_type = 0;
-
 
     while (true) {
 REGEX_FOUND:
