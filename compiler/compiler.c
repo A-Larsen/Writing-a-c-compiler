@@ -18,7 +18,6 @@
 #define TOKEN_ClOSE_BRACE 6
 #define TOKEN_SEMICOLON 7
 #define TOKEN_MULTILINE_COMMENT_START 8
-/* #define TOKEN_MULTILINE_COMMENT_END 9 */
 #define TOKEN_COUNT 9
 
 static int options = 0;
