@@ -24,7 +24,7 @@
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
-int regex_match(char *str, const char *regex) {
+int regex_match(char **found, char *str, const char *regex, bool capture) {
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex;
     PCRE2_SPTR subject = (PCRE2_SPTR)str;
     int error_number;
@@ -80,8 +80,12 @@ int regex_match(char *str, const char *regex) {
 
     PCRE2_SPTR substring_start = subject + ovector[0];
     PCRE2_SIZE substring_length = ovector[1] - ovector[0];
-    printf("'%.*s'\n", (int)substring_length,
-           (char *)substring_start);
+
+    if (capture) {
+        *found = malloc(substring_length + 1);
+        memcpy(*found, (char *)substring_start, (int)substring_length);
+        (*found)[substring_length] = '\0';
+    }
 
     int len = strlen(str) - substring_length;
     memcpy(str, str + substring_length, len); 
@@ -100,7 +104,7 @@ void get_tokens(char *line, uint32_t line_number, const char **regexs,
     while (true) {
 REGEX_FOUND:
         if (in_comment) {
-            while(!regex_match(line, "^\\*/")) {
+            while(!regex_match(NULL, line, "^\\*/", false)) {
                 if (line[0] == '\n') return;
                 int len = strlen(line) - 1;
                 memcpy(line, line + 1, len);
@@ -109,11 +113,14 @@ REGEX_FOUND:
             in_comment = false;
         }
 
-        if (regex_match(line, "^\\n*$") || line[0] == EOF) break;
-        regex_match(line, "^\\s+");
+        if (regex_match(NULL, line, "^\\n*$", false) || line[0] == EOF) break;
+        regex_match(NULL, line, "^\\s+", false);
 
         for (uint8_t i = 0; i < regexs_length; ++i) {
-            if (regex_match(line, regexs[i])) {
+            char *match = NULL;
+            if (regex_match(&match, line, regexs[i], true)) {
+                printf("%s\n", match);
+                free(match);
                 switch(i) {
                     case TOKEN_MULTILINE_COMMENT_START: in_comment = true;
                 }
@@ -136,7 +143,6 @@ int main(int argc, char **argv) {
 
     char *file_name = argv[argc-1];
     FILE *fp = fopen(file_name, "r");
-    /* int ch = 0; */
     uint32_t line_number = 1;
     char line[256];
     memset(line, 0, 256);
@@ -166,8 +172,6 @@ int main(int argc, char **argv) {
         if (ch == EOF)  break;
     }
 
-    printf("options: %d\n", options);
-    printf("file name: %s\n", file_name);
     fclose(fp);
     return 0;
 }
