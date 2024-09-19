@@ -74,7 +74,7 @@ int regex_match(char *str, char *regex, bool process_match)
 
     PCRE2_SPTR substring_start = subject + ovector[0];
     PCRE2_SIZE substring_length = ovector[1] - ovector[0];
-    printf("%2d: '%.*s'\n", 0, (int)substring_length,
+    printf("'%.*s'\n", (int)substring_length,
            (char *)substring_start);
 
     int len = strlen(str) - substring_length;
