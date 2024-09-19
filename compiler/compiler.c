@@ -10,13 +10,13 @@
 
 static int options = 0;
 
+// return 1 if there is a match, 0 otherwise
 int regex_match(char *str, char *regex)
     {
     pcre2_code *re;
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex;
     PCRE2_SPTR subject = (PCRE2_SPTR)str;
     int error_number;
-    int i;
     int rc;
 
     PCRE2_SIZE error_offset;
@@ -57,7 +57,7 @@ int regex_match(char *str, char *regex)
         {
         switch (rc)
             {
-            case PCRE2_ERROR_NOMATCH: return 1;
+            case PCRE2_ERROR_NOMATCH: return 0;
             default: fprintf(stderr, "Matching error %d\n", rc);
                      break;
             }
@@ -73,14 +73,18 @@ int regex_match(char *str, char *regex)
         fprintf(stderr, "ovector was not big enough for all the"
                         "captured substrings\n");
 
-    for (i = 0; i < rc; i++)
-        {
-        PCRE2_SPTR substring_start = subject + ovector[2*i];
-        PCRE2_SIZE substring_length = ovector[2*i+1] - ovector[2*i];
-        printf("%2d: %.*s\n", i, (int)substring_length,
-               (char *)substring_start);
-        }
-    return 0;
+    PCRE2_SPTR substring_start = subject + ovector[0];
+    PCRE2_SIZE substring_length = ovector[1] - ovector[0];
+    printf("%2d: %.*s\n", 0, (int)substring_length,
+           (char *)substring_start);
+
+    /* char newstr[256]; */
+    /* memset(newstr, 0, 256); */
+    int len = strlen(str) - substring_length;
+    memcpy(str, str + substring_length, len); 
+    str[len] = 0;
+    
+    return 1;
 
     }
 
@@ -97,8 +101,8 @@ int main(int argc, char **argv)
     char *file_name = argv[argc-1];
     FILE *fp = fopen(file_name, "r");
     int ch = 0;
-    char line[255];
-    memset(line, 0, 255);
+    char line[256];
+    memset(line, 0, 256);
     int line_pos = 0;
 
     while ((ch = fgetc(fp)) != EOF)
@@ -107,14 +111,32 @@ int main(int argc, char **argv)
         line_pos++;
         if (ch == '\n')
             {
-            regex_match(line, "[a-zA-Z_]\\w*\\b");
-            regex_match(line, "[0-9]+\\b");
+            while(line[0] == ' ')
+                {
+                int len = strlen(line);
+                memcpy(line, line + 1, len - 1);
+                line[len - 1] = 0;
+                }
+
             regex_match(line, "(int\\b|void\\b|return\\b)");
-            regex_match(line, "\\)");
-            regex_match(line, "\\(");
-            regex_match(line, "\\{");
-            regex_match(line, "\\}");
-            regex_match(line, "\\;");
+            printf("%s", line);
+                /* regex_match(line, "[a-zA-Z_]\\w*\\b"); */
+                /* regex_match(line, "[0-9]+\\b"); */
+                /* while(1) { */
+                /*     if ( */
+                /*         !regex_match(line, "(int\\b|void\\b|return\\b)") || */
+                /*         !regex_match(line, "[a-zA-Z_]\\w*\\b") || */
+                /*         !regex_match(line, "[0-9]+\\b") || */
+                /*         !regex_match(line, "\\)") || */
+                /*         !regex_match(line, "\\(") || */
+                /*         !regex_match(line, "\\{") || */
+                /*         !regex_match(line, "\\}") || */
+                /*         !regex_match(line, "\\;") */
+                /*         ) */
+                /*         continue; */
+
+                /*     break; */
+                /* } */
             memset(line, 0, 255);
             line_pos = 0;
             }
