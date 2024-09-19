@@ -110,9 +110,9 @@ int main(int argc, char **argv)
         line_pos++;
         if (ch == '\n')
             {
-            while(!regex_match(line, "^\\s*$", false))
+            while (!regex_match(line, "^\\s*$", false))
                 {
-                while(line[0] == ' ')
+                while (line[0] == ' ')
                     {
                     int len = strlen(line) - 1;
                     memcpy(line, line + 1, len);
