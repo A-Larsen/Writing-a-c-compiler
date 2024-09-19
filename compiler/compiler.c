@@ -3,6 +3,7 @@
 #include <pcre2.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define option_lex 1 << 0;
 #define option_parse 1 << 1;
@@ -11,20 +12,16 @@
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
-int regex_match(char *str, char *regex)
+int regex_match(char *str, char *regex, bool process_match)
     {
-    pcre2_code *re;
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex;
     PCRE2_SPTR subject = (PCRE2_SPTR)str;
     int error_number;
-    int rc;
 
     PCRE2_SIZE error_offset;
-    PCRE2_SIZE *ovector;
     PCRE2_SIZE subject_length = (PCRE2_SIZE)strlen((char *)subject);
-    pcre2_match_data *match_data;
 
-    re = pcre2_compile(
+    pcre2_code *re = pcre2_compile(
         pattern,
         PCRE2_ZERO_TERMINATED,
         0,
@@ -42,8 +39,9 @@ int regex_match(char *str, char *regex)
         exit(1);
         }
 
-    match_data = pcre2_match_data_create_from_pattern(re, NULL);
-    rc = pcre2_match(
+    pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re,
+                                                                        NULL);
+    int rc = pcre2_match(
         re,
         subject,
         subject_length,
@@ -66,23 +64,25 @@ int regex_match(char *str, char *regex)
         exit(1);
         }
 
-    ovector = pcre2_get_ovector_pointer(match_data);
-    printf("Match succeded at offset %d\n", (int)ovector[0]);
+    PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 
     if (rc == 0)
         fprintf(stderr, "ovector was not big enough for all the"
                         "captured substrings\n");
+
+    if (!process_match) return 1;
 
     PCRE2_SPTR substring_start = subject + ovector[0];
     PCRE2_SIZE substring_length = ovector[1] - ovector[0];
     printf("%2d: '%.*s'\n", 0, (int)substring_length,
            (char *)substring_start);
 
-    /* char newstr[256]; */
-    /* memset(newstr, 0, 256); */
     int len = strlen(str) - substring_length;
     memcpy(str, str + substring_length, len); 
     str[len] = '\0';
+
+    pcre2_match_data_free(match_data);
+    pcre2_code_free(re);
     
     return 1;
 
@@ -93,9 +93,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < argc; ++i)
         {
         if (strcmp(argv[i], "--lex") == 0)
-            {
             options |= option_lex;
-            }
         }
 
     char *file_name = argv[argc-1];
@@ -112,7 +110,7 @@ int main(int argc, char **argv)
         line_pos++;
         if (ch == '\n')
             {
-            while(!regex_match(line, "^\\s*$"))
+            while(!regex_match(line, "^\\s*$", false))
                 {
                 while(line[0] == ' ')
                     {
@@ -121,19 +119,18 @@ int main(int argc, char **argv)
                     line[len] = '\0';
                     }
                 if (
-                    !(regex_match(line, "^(int\\b|void\\b|return\\b)") ||
-                    regex_match(line, "^[a-zA-Z_]\\w*\\b") ||
-                    regex_match(line, "^[0-9]+\\b") ||
-                    regex_match(line, "^\\)") ||
-                    regex_match(line, "^\\(") ||
-                    regex_match(line, "^{") ||
-                    regex_match(line, "^}") ||
-                    regex_match(line, "^;"))
-                    ) {
+                    !(regex_match(line, "^(int\\b|void\\b|return\\b)", true) ||
+                    regex_match(line, "^[a-zA-Z_]\\w*\\b", true) ||
+                    regex_match(line, "^[0-9]+\\b", true) ||
+                    regex_match(line, "^\\)", true) ||
+                    regex_match(line, "^\\(", true) ||
+                    regex_match(line, "^{", true) ||
+                    regex_match(line, "^}", true) ||
+                    regex_match(line, "^;", true))
+                    ){
                     fprintf(stderr, "Error on line %d\n", line_number);
                     exit(1);
-                }
-                /* printf("%s", line); */
+                    }
                 }
 
             memset(line, 0, 255);
@@ -143,5 +140,6 @@ int main(int argc, char **argv)
         }
     printf("options: %d\n", options);
     printf("file name: %s\n", file_name);
+    fclose(fp);
     return 0;
     }
