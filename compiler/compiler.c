@@ -97,17 +97,19 @@ int regex_match(char *str, const char *regex, bool process_match) {
 void get_tokens(char *line, uint32_t line_number, const char **regexs,
                 uint8_t regexs_length) {
     static bool in_comment = false;
-    if (in_comment){
-        while(!regex_match(line, "^\\*/", true)) {
-            int len = strlen(line) - 1;
-            memcpy(line, line + 1, len);
-            line[len] = '\0';
-        }
-        in_comment = false;
-        return;
-    }  
+
     while (true) {
 REGEX_FOUND:
+        if (in_comment) {
+            while(!regex_match(line, "^\\*/", true)) {
+                if (line[0] == '\n') return;
+                int len = strlen(line) - 1;
+                memcpy(line, line + 1, len);
+                line[len] = '\0';
+            }
+            in_comment = false;
+        }
+
         if (regex_match(line, "^\\s*$", false)) break;
         while (line[0] == ' ') {
             int len = strlen(line) - 1;
@@ -119,7 +121,6 @@ REGEX_FOUND:
                 switch(i) {
                     case TOKEN_MULTILINE_COMMENT_START:  {
                         in_comment = true;
-                        return;
                     }
                 }
 
