@@ -3,3 +3,4 @@
 - https://www.youtube.com/watch?v=tvC1WCdV1XU&list=PLDED25B8DC0FEF9A1
 - https://www.youtube.com/watch?v=18c3MTX0PK0&list=PLlrATfBNZ98dudnM48yfGUldqGD0S4FFb
 - https://github.com/PCRE2Project/pcre2[pcre2]
+- https://github.com/nlsandler/writing-a-c-compiler-tests[tests]

@@ -17,7 +17,9 @@
 #define TOKEN_OPEN_BRACE 5
 #define TOKEN_ClOSE_BRACE 6
 #define TOKEN_SEMICOLON 7
-#define TOKEN_COUNT 8
+#define TOKEN_MULTILINE_COMMENT_START 8
+/* #define TOKEN_MULTILINE_COMMENT_END 9 */
+#define TOKEN_COUNT 9
 
 static int options = 0;
 
@@ -95,7 +97,17 @@ int regex_match(char *str, const char *regex, bool process_match) {
 
 void get_tokens(char *line, uint32_t line_number, const char **regexs,
                 uint8_t regexs_length) {
-    while (true) {
+    static bool in_comment = false;
+    if (in_comment){
+        while(!regex_match(line, "^\\*/", true)) {
+            int len = strlen(line) - 1;
+            memcpy(line, line + 1, len);
+            line[len] = '\0';
+        }
+        in_comment = false;
+        return;
+    }  
+    while (!in_comment) {
 REGEX_FOUND:
         if (regex_match(line, "^\\s*$", false)) break;
         while (line[0] == ' ') {
@@ -104,8 +116,16 @@ REGEX_FOUND:
             line[len] = '\0';
         }
         for (uint8_t i = 0; i < regexs_length; ++i) {
-            if (regex_match(line, regexs[i], true))
+            if (regex_match(line, regexs[i], true)) {
+                switch(i) {
+                    case TOKEN_MULTILINE_COMMENT_START:  {
+                        in_comment = true;
+                        return;
+                    }
+                }
+
                 goto REGEX_FOUND;
+            }
         }
         fprintf(stderr, "Error on line %d\n"
                         ">> %s",
@@ -135,7 +155,8 @@ int main(int argc, char **argv) {
         [TOKEN_CLOSE_PARANTHESIS] ="^\\)",
         [TOKEN_OPEN_BRACE] = "^{",
         [TOKEN_ClOSE_BRACE] = "^}",
-        [TOKEN_SEMICOLON] = "^;"
+        [TOKEN_SEMICOLON] = "^;",
+        [TOKEN_MULTILINE_COMMENT_START] = "^/\\*",
     };
 
     while ((ch = fgetc(fp)) != EOF) {
