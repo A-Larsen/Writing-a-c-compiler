@@ -101,6 +101,7 @@ int main(int argc, char **argv)
     char *file_name = argv[argc-1];
     FILE *fp = fopen(file_name, "r");
     int ch = 0;
+    uint32_t line_number = 1;
     char line[256];
     memset(line, 0, 256);
     int line_pos = 0;
@@ -119,19 +120,25 @@ int main(int argc, char **argv)
                     memcpy(line, line + 1, len);
                     line[len] = '\0';
                     }
-                regex_match(line, "^(int\\b|void\\b|return\\b)");
-                regex_match(line, "^[a-zA-Z_]\\w*\\b");
-                regex_match(line, "^[0-9]+\\b");
-                regex_match(line, "^\\)");
-                regex_match(line, "^\\(");
-                regex_match(line, "^{");
-                regex_match(line, "^}");
-                regex_match(line, "^;");
+                if (
+                    !(regex_match(line, "^(int\\b|void\\b|return\\b)") ||
+                    regex_match(line, "^[a-zA-Z_]\\w*\\b") ||
+                    regex_match(line, "^[0-9]+\\b") ||
+                    regex_match(line, "^\\)") ||
+                    regex_match(line, "^\\(") ||
+                    regex_match(line, "^{") ||
+                    regex_match(line, "^}") ||
+                    regex_match(line, "^;"))
+                    ) {
+                    fprintf(stderr, "Error on line %d\n", line_number);
+                    exit(1);
+                }
                 /* printf("%s", line); */
                 }
 
             memset(line, 0, 255);
             line_pos = 0;
+            line_number++;
             }
         }
     printf("options: %d\n", options);
