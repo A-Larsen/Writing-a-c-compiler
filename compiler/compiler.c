@@ -12,8 +12,7 @@
 static int options = 0;
 
 // return 1 if there is a match, 0 otherwise
-int regex_match(char *str, char *regex, bool process_match)
-    {
+int regex_match(char *str, char *regex, bool process_match) {
     PCRE2_SPTR pattern = (PCRE2_SPTR)regex;
     PCRE2_SPTR subject = (PCRE2_SPTR)str;
     int error_number;
@@ -28,16 +27,15 @@ int regex_match(char *str, char *regex, bool process_match)
         &error_number,
         &error_offset,
         NULL
-        );
+    );
 
-    if (re == NULL)
-        {
+    if (re == NULL) {
         PCRE2_UCHAR buffer[256];
         pcre2_get_error_message(error_number, buffer, sizeof(buffer));
         fprintf(stderr, "PCRE2 compilation failed at offset %d: %s\n", 
                 (int)error_offset, buffer);
         exit(1);
-        }
+    }
 
     pcre2_match_data *match_data = pcre2_match_data_create_from_pattern(re,
                                                                         NULL);
@@ -49,20 +47,18 @@ int regex_match(char *str, char *regex, bool process_match)
         0,
         match_data,
         NULL
-        );
+    );
 
-    if (rc < 0)
-        {
-        switch (rc)
-            {
+    if (rc < 0) {
+        switch (rc) {
             case PCRE2_ERROR_NOMATCH: return 0;
             default: fprintf(stderr, "Matching error %d\n", rc);
                      break;
-            }
+        }
         pcre2_match_data_free(match_data);
         pcre2_code_free(re);
         exit(1);
-        }
+    }
 
     PCRE2_SIZE *ovector = pcre2_get_ovector_pointer(match_data);
 
@@ -85,41 +81,32 @@ int regex_match(char *str, char *regex, bool process_match)
     pcre2_code_free(re);
     
     return 1;
-
-    }
+}
 
 void get_tokens(char *line, uint32_t line_number, char **regexs,
-                uint8_t regexs_length)
-    {
-    while (true)
-        {
+                uint8_t regexs_length) {
+    while (true) {
 REGEX_FOUND:
         if (regex_match(line, "^\\s*$", false)) break;
-        while (line[0] == ' ')
-            {
+        while (line[0] == ' ') {
             int len = strlen(line) - 1;
             memcpy(line, line + 1, len);
             line[len] = '\0';
-            }
-            for (uint8_t i = 0; i < regexs_length; ++i) {
-                if (regex_match(line, regexs[i], true))
-                    {
-                    goto REGEX_FOUND;
-                    }
-
-            }
-            fprintf(stderr, "Error on line %d\n", line_number);
-            exit(1);
         }
+        for (uint8_t i = 0; i < regexs_length; ++i) {
+            if (regex_match(line, regexs[i], true))
+                goto REGEX_FOUND;
+        }
+        fprintf(stderr, "Error on line %d\n", line_number);
+        exit(1);
     }
+}
 
-int main(int argc, char **argv)
-    {
-    for (int i = 0; i < argc; ++i)
-        {
+int main(int argc, char **argv) {
+    for (int i = 0; i < argc; ++i) {
         if (strcmp(argv[i], "--lex") == 0)
             options |= option_lex;
-        }
+    }
 
     char *file_name = argv[argc-1];
     FILE *fp = fopen(file_name, "r");
@@ -139,20 +126,18 @@ int main(int argc, char **argv)
         "^;"
     };
 
-    while ((ch = fgetc(fp)) != EOF)
-        {
+    while ((ch = fgetc(fp)) != EOF) {
         line[line_pos] = ch;
         line_pos++;
-        if (ch == '\n')
-            {
+        if (ch == '\n') {
             get_tokens(line, line_number, token_regexs, 8);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
-            }
         }
+    }
     printf("options: %d\n", options);
     printf("file name: %s\n", file_name);
     fclose(fp);
     return 0;
-    }
+}
