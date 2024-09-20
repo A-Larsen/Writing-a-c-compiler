@@ -45,9 +45,12 @@ typedef struct _Lexer {
     // finishs then an error occurs
     uint8_t brace_indicator;
     uint8_t parenthesis_indicator;
+    uint64_t token_count;
+    char *tokens[2048];
 } Lexer;
 
 void lexer_init(Lexer *lexer);
 void lexer_run(Lexer *lexer, FILE *fp);
+void lexer_free(Lexer *lexer);
 
 #endif // _LEXER_H_

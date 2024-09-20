@@ -38,6 +38,7 @@ int main(int argc, char **argv) {
     }
     lexer_init(&lexer);
     lexer_run(&lexer, fp);
+    lexer_free(&lexer);
 
     fclose(fp);
     return 0;

@@ -29,7 +29,7 @@ static bool handle_comment(char *line, const char **token_regexs) {
     return false;
 }
 
-static void get_tokens(Lexer *lexer, char *line, uint32_t line_number) {
+static void tokenizer(Lexer *lexer, char *line, uint32_t line_number) {
     static uint8_t second_token_check_type = 0;
 
     const char *token_regexs[TOKEN_COUNT] = {
@@ -90,7 +90,9 @@ REGEX_FOUND:
             char *match = NULL;
             if (regex_match(&match, line, token_regexs[i], true)) {
                 printf("%s\n", match);
-                free(match);
+                lexer->tokens[i] = match; 
+                lexer->token_count++;
+                /* free(match); */
                 second_token_check_type = i;
                 goto REGEX_FOUND;
             }
@@ -118,7 +120,7 @@ void lexer_run(Lexer *lexer, FILE *fp) {
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n' || ch == EOF) {
-            get_tokens(lexer, line, line_number);
+            tokenizer(lexer, line, line_number);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
@@ -133,6 +135,12 @@ void lexer_run(Lexer *lexer, FILE *fp) {
     if (lexer->parenthesis_indicator != 0) {
         fprintf(stderr, "ERROR!\n\tNo Closing paranthesis!");
         exit(1);
+    }
+}
+
+void lexer_free(Lexer *lexer) {
+    for (uint64_t i = 0; i < lexer->token_count; ++i) {
+        free(lexer->tokens[i]);
     }
 }
 
