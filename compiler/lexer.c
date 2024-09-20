@@ -90,9 +90,7 @@ REGEX_FOUND:
             char *match = NULL;
             if (regex_match(&match, line, token_regexs[i], true)) {
                 printf("%s\n", match);
-                lexer->tokens[lexer->token_count] = match;
-                lexer->token_count++;
-                /* free(match); */
+                lexer->tokens[lexer->token_count++] = match;
                 second_token_check_type = i;
                 goto REGEX_FOUND;
             }
