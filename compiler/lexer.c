@@ -90,7 +90,7 @@ REGEX_FOUND:
             char *match = NULL;
             if (regex_match(&match, line, token_regexs[i], true)) {
                 printf("%s\n", match);
-                lexer->tokens[i] = match; 
+                lexer->tokens[lexer->token_count] = match;
                 lexer->token_count++;
                 /* free(match); */
                 second_token_check_type = i;
@@ -105,8 +105,7 @@ REGEX_FOUND:
 }
 
 void lexer_init(Lexer *lexer) {
-    lexer->brace_indicator = 0;
-    lexer->parenthesis_indicator = 0;
+    memset(lexer, 0, sizeof(Lexer));
 }
 
 void lexer_run(Lexer *lexer, FILE *fp) {
