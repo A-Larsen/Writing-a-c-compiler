@@ -32,6 +32,10 @@ int main(int argc, char **argv) {
 
     char *file_name = argv[argc-1];
     FILE *fp = fopen(file_name, "r");
+    if (!fp) {
+        fprintf(stderr, "File does not exist\n");
+        return 1;
+    }
     lexer_init(&lexer);
     lexer_run(&lexer, fp);
 
