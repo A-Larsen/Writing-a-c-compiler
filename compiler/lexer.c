@@ -29,7 +29,7 @@ static bool handle_comment(char *line, const char **token_regexs) {
     return false;
 }
 
-static void parser(Lexer *lexer, char *line, uint32_t line_number) {
+static void get_tokens(Lexer *lexer, char *line, uint32_t line_number) {
     static uint8_t second_token_check_type = 0;
 
     const char *token_regexs[TOKEN_COUNT] = {
@@ -118,7 +118,7 @@ void lexer_run(Lexer *lexer, FILE *fp) {
         line[line_pos] = ch;
         line_pos++;
         if (ch == '\n' || ch == EOF) {
-            parser(lexer, line, line_number);
+            get_tokens(lexer, line, line_number);
             memset(line, 0, 255);
             line_pos = 0;
             line_number++;
