@@ -60,19 +60,19 @@ REGEX_FOUND:
                 break;
             }
             case TOKEN_OPEN_BRACE: {
-                lexer->brace_indicator++;
+                lexer->brace_depth++;
                 break;
             }
             case TOKEN_ClOSE_BRACE: {
-                lexer->brace_indicator--;
+                lexer->brace_depth--;
                 break;
             }
             case TOKEN_OPEN_PARANTHESIS: {
-                lexer->parenthesis_indicator++;
+                lexer->parenthesis_depth++;
                 break;
             };
             case TOKEN_CLOSE_PARANTHESIS: {
-                lexer->parenthesis_indicator--;
+                lexer->parenthesis_depth--;
                 break;
             }
         }
@@ -125,11 +125,11 @@ void lexer_run(Lexer *lexer, FILE *fp) {
         if (ch == EOF)  break;
     }
 
-    if (lexer->brace_indicator != 0) {
+    if (lexer->brace_depth != 0) {
         fprintf(stderr, "ERROR!\n\tNo Closing brace!");
         exit(1);
     }
-    if (lexer->parenthesis_indicator != 0) {
+    if (lexer->parenthesis_depth != 0) {
         fprintf(stderr, "ERROR!\n\tNo Closing paranthesis!");
         exit(1);
     }

@@ -40,11 +40,11 @@
 #define TOKEN_COUNT 10
 
 typedef struct _Lexer {
-    // the brace_indicator will be incremented for every open brace and
+    // the brace_depth will be incremented for every open brace and
     // decremented for every closing brace, if this is not zero when the lexer
     // finishs then an error occurs
-    uint8_t brace_indicator;
-    uint8_t parenthesis_indicator;
+    uint8_t brace_depth;
+    uint8_t parenthesis_depth;
     uint64_t token_count;
     char *tokens[2048];
 } Lexer;
